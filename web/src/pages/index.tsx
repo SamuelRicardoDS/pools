@@ -5,6 +5,8 @@ import logoImg from "../assets/logo.svg";
 import exampleAvatars from "../assets/avatares.svg";
 import iconCheck from "../assets/icon.svg";
 import { api } from "../lib/axios";
+import { create } from "domain";
+import { FormEvent, useState } from "react";
 
 interface HomeProps {
   poolCount: number;
@@ -13,6 +15,26 @@ interface HomeProps {
 }
 
 export default function Home(props: HomeProps) {
+
+  const[poolTitle, setPoolTitle] = useState('');
+
+  async function createPool(event: FormEvent) {
+    event.preventDefault();
+    try {
+      const response = await api.post('/pools', {
+        title: poolTitle
+      })
+      const { code } = response.data;
+      await navigator.clipboard.writeText(code);
+      
+      alert('codigo copiado');
+      setPoolTitle('')
+    } catch (error) {
+      console.log(error)
+      alert('Erro ao criar pool')
+    }
+
+  }
   return (
     <div className="max-w-[1124px] mx-auto grid gap-28 grid-cols-2 h-screen items-center">
       <main>
@@ -28,15 +50,17 @@ export default function Home(props: HomeProps) {
             estão usando
           </strong>
         </div>
-        <form action="" className="mt-10 flex gap-2">
+        <form onSubmit={createPool} className="mt-10 flex gap-2">
           <input 
           className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm"
           type="text" 
+          onChange={event => setPoolTitle(event.target.value)}
           required 
           placeholder="Qual o nome do seu bolão" />
           <button 
           className="bg-yellow-500 px-6 py-4 rounded text-gray-900 font-bold text-sm uppercase hover:bg-yellow-700"
           type="submit"
+          value={poolTitle}
           >
             Criar meu bolão
           </button>
